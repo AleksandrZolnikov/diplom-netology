@@ -62,7 +62,7 @@ $ cp -rfp inventory/sample inventory/cluster-diplom
 $ ansible-playbook -i inventory/cluster-diplom/inventory.ini cluster.yml -b -v -e ansible_user=aleksandr
 ```
 
-Подключаемся к мастеру и копируем содержимое файла `/etc/kubernetes/admin.conf`.
+### Подключаемся к мастеру и копируем содержимое файла `/etc/kubernetes/admin.conf`.
 
 ```shell
 $ ssh aleksandr@158.160.34.163
@@ -102,7 +102,7 @@ aleksandr@node1:~$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 aleksandr@node1:~$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-Проверяем кластер.
+### Проверяем кластер.
 ```shell
 aleksandr@node1:~$ kubectl get nodes
 NAME    STATUS   ROLES           AGE    VERSION
@@ -124,9 +124,9 @@ node5   Ready    <none>          2d4h   v1.25.4
 
 ---
 
-Создадим докер-образ с простым веб-сервером, отдающим страницу c IP адресом пода, к которому было осуществлено подключение в данный момент.
+### Создадим докер-образ с простым веб-сервером, отдающим страницу c IP адресом пода, к которому было осуществлено подключение в данный момент.
 
-Код приложения:
+### Код приложения:
 
 ```php
 <?php
@@ -138,7 +138,7 @@ echo "Current pod`s IP: $internal_ip";
 ?>
 ```
 
-Докерфайл:
+### Докерфайл:
 
 ```dockerfile
 FROM amazonlinux
@@ -154,7 +154,7 @@ CMD ["/usr/sbin/httpd","-D","FOREGROUND"]
 EXPOSE 80
 ```
 
-Для развертывания приложения в кластере созданы файлы deployment.yml, service.yml.
+### Для развертывания приложения в кластере созданы файлы deployment.yml, service.yml.
 
 ```yaml
 ---
@@ -198,7 +198,7 @@ spec:
       targetPort: 80
 ```
 
-Запускаем сборку докер образа, и пушим образ в реджистри.
+### Запускаем сборку докер образа, и пушим образ в реджистри.
 
 ```shell
 aleksandr@node1:~/app$ docker build -t diplom-k8s-app .
@@ -210,7 +210,7 @@ aleksandr@node1:~/app$ docker login
 aleksandr@node1:~/app$ docker push aleksandrzol/diplom-k8s-app:1.0.0
 ```
 
-Разворачиваем приложение в Кубернетесе и проверяем руезультат.
+### Разворачиваем приложение в Кубернетесе и проверяем руезультат.
 
 ```shell
 aleksandr@node1:~/app$ kubectl apply -f deployment.yml
@@ -254,7 +254,7 @@ prometheus-stack-kube-state-metrics         ClusterIP   10.233.56.209   <none>  
 prometheus-stack-prometheus-node-exporter   ClusterIP   10.233.43.39    <none>        9100/TCP                     10h
 ```
 
-Создаем манифест сервиса типа NodePort.
+### Создаем манифест сервиса типа NodePort.
 
 ```yaml
 # service-grafana.yaml
@@ -274,7 +274,7 @@ spec:
       targetPort: 3000
 ```
 
-Применяем конфигурацию.
+### Применяем конфигурацию.
 ```shell
 aleksandr@node1:~/app$ kubectl apply -f service-grafana.yml
 ```
@@ -294,7 +294,7 @@ prometheus-stack-kube-state-metrics         ClusterIP   10.233.56.209   <none>  
 prometheus-stack-prometheus-node-exporter   ClusterIP   10.233.43.39    <none>        9100/TCP                     10h
 ```
 
-Проверяем доступность веб-интерфейса:
+### Проверяем доступность веб-интерфейса:
 
 ![grafana-](./img/Screenshot_7.png)
 
@@ -321,7 +321,7 @@ ci_access:
     - id: alexandrzolnikov/diplom-netology
 ```
 
-Устанавливаем агент в кластер с помощью helm:
+### Устанавливаем агент в кластер с помощью helm:
 
 ```
 helm repo add gitlab https://charts.gitlab.io \
@@ -350,7 +350,7 @@ helm upgrade --install gitlab-agent gitlab/gitlab-agent \
 ![job1](./img/Screenshot_6.png)
 
 
-Проверяем обновленный деплоймент и удостоверяемся, что он создан из образа с только что добавленным тегом:
+### Проверяем обновленный деплоймент и удостоверяемся, что он создан из образа с только что добавленным тегом:
 
 ```shell
 aleksandr@node1:~/app$ kubectl describe deployment diplom-k8s-app --namespace gitlab-agent
