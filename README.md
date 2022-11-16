@@ -1,8 +1,8 @@
-Создание облачной инфраструктуры.
+## Создание облачной инфраструктуры.
 В качестве бекенда для Терраформа выбран Terraform Cloud.
-### Файл [main.tf](./terraform/main.tf)
+#### Файл [main.tf](./terraform/main.tf)
 
-### Cоздаем workspace stage
+#### Cоздаем workspace stage
 ````
 $ terraform workspace new stage
 Created and switched to workspace "stage"!
@@ -12,7 +12,7 @@ so if you run "terraform plan" Terraform will not see any existing state
 for this configuration.
 ````
 
-### Cоздаем workspace prod
+#### Cоздаем workspace prod
 ````
 $ terraform workspace new prod
 Created and switched to workspace "prod"!
@@ -24,7 +24,7 @@ for this configuration.
 ````
 $ terraform workspace select stage
 ````
-### Workspace list
+#### Workspace list
 ````
 $ terraform workspace list
   default
@@ -35,10 +35,10 @@ $ terraform workspace list
 ````
 $ terraform apply
 ````
-### Yandex Cloud
+#### Yandex Cloud
 ![alt text](./img/Screenshot_1.png)
 
-### Создание Kubernetes кластера
+## Создание Kubernetes кластера
 
 Скачиваем репозиторий с Kubespray.
 
@@ -49,20 +49,50 @@ $ git clone https://github.com/kubernetes-sigs/kubespray
 ```shell
 $ sudo pip3 install -r requirements.txt
 ```
-### Копирование примера в папку с нашей конфигурацией
+#### Копирование примера в папку с нашей конфигурацией
 ```shell
 $ cp -rfp inventory/sample inventory/cluster-diplom
 ```
 
-### Заполняем [inventory.ini](./kubespray/inventory/cluster-diplom/inventory.ini)
+#### Заполняем inventory.ini
 
-### Запускаем плейбук.
+```yaml
+[all]
+node1 ansible_host=84.201.174.10  # ip=10.3.0.1 etcd_member_name=etcd1
+node2 ansible_host=84.201.175.182  # ip=10.3.0.2 etcd_member_name=etcd2
+node3 ansible_host=84.252.128.186  # ip=10.3.0.3 etcd_member_name=etcd3
+node4 ansible_host=84.201.157.217  # ip=10.3.0.4 etcd_member_name=etcd4
+node5 ansible_host=84.252.129.1  # ip=10.3.0.5 etcd_member_name=etcd5
+
+[kube_control_plane]
+node1
+node2
+node3
+
+[etcd]
+node1
+node2
+node3
+
+[kube_node]
+node4
+node5
+
+[calico_rr]
+
+[k8s_cluster:children]
+kube_control_plane
+kube_node
+calico_rr
+```
+
+#### Запускаем плейбук.
 
 ```shell
 $ ansible-playbook -i inventory/cluster-diplom/inventory.ini cluster.yml -b -v -e ansible_user=aleksandr
 ```
 
-### Подключаемся к мастеру и копируем содержимое файла `/etc/kubernetes/admin.conf`.
+#### Подключаемся к мастеру и копируем содержимое файла `/etc/kubernetes/admin.conf`.
 
 ```shell
 $ ssh aleksandr@158.160.34.163
@@ -102,7 +132,7 @@ aleksandr@node1:~$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 aleksandr@node1:~$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-### Проверяем кластер.
+#### Проверяем кластер.
 ```shell
 aleksandr@node1:~$ kubectl get nodes
 NAME    STATUS   ROLES           AGE    VERSION
@@ -118,15 +148,15 @@ node5   Ready    <none>          2d4h   v1.25.4
 
 ---
 
-### Ссылка на итоговый репозиторий с helm чартом.
+#### Ссылка на итоговый репозиторий с helm чартом.
 
 [gitlab.com/AlexandrZolnikov/diplom-netology](https://gitlab.com/AlexandrZolnikov/diplom-netology)
 
 ---
 
-### Создадим докер-образ с простым веб-сервером, отдающим страницу c IP адресом пода, к которому было осуществлено подключение в данный момент.
+#### Создадим докер-образ с простым веб-сервером, отдающим страницу c IP адресом пода, к которому было осуществлено подключение в данный момент.
 
-### Код приложения:
+#### Код приложения:
 
 ```php
 <?php
@@ -138,7 +168,7 @@ echo "Current pod`s IP: $internal_ip";
 ?>
 ```
 
-### Докерфайл:
+#### Докерфайл:
 
 ```dockerfile
 FROM amazonlinux
@@ -154,11 +184,11 @@ CMD ["/usr/sbin/httpd","-D","FOREGROUND"]
 EXPOSE 80
 ```
 
-### Для развертывания приложения в кластере созданы файлы deployment.yml, service.yml.
+#### Для развертывания приложения в кластере созданы файлы deployment.yml, service.yml.
 
 ```yaml
 ---
-# deployment.yml
+#### deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -181,7 +211,7 @@ spec:
               containerPort: 80
               protocol: TCP
   
-# service.yaml
+#### service.yaml
 ---
 apiVersion: v1
 kind: Service
@@ -198,7 +228,7 @@ spec:
       targetPort: 80
 ```
 
-### Запускаем сборку докер образа, и пушим образ в реджистри.
+#### Запускаем сборку докер образа, и пушим образ в реджистри.
 
 ```shell
 aleksandr@node1:~/app$ docker build -t diplom-k8s-app .
@@ -210,7 +240,7 @@ aleksandr@node1:~/app$ docker login
 aleksandr@node1:~/app$ docker push aleksandrzol/diplom-k8s-app:1.0.0
 ```
 
-### Разворачиваем приложение в Кубернетесе и проверяем руезультат.
+#### Разворачиваем приложение в Кубернетесе и проверяем руезультат.
 
 ```shell
 aleksandr@node1:~/app$ kubectl apply -f deployment.yml
@@ -254,7 +284,7 @@ prometheus-stack-kube-state-metrics         ClusterIP   10.233.56.209   <none>  
 prometheus-stack-prometheus-node-exporter   ClusterIP   10.233.43.39    <none>        9100/TCP                     10h
 ```
 
-### Создаем манифест сервиса типа NodePort.
+#### Создаем манифест сервиса типа NodePort.
 
 ```yaml
 # service-grafana.yaml
@@ -274,7 +304,7 @@ spec:
       targetPort: 3000
 ```
 
-### Применяем конфигурацию.
+#### Применяем конфигурацию.
 ```shell
 aleksandr@node1:~/app$ kubectl apply -f service-grafana.yml
 ```
@@ -294,7 +324,7 @@ prometheus-stack-kube-state-metrics         ClusterIP   10.233.56.209   <none>  
 prometheus-stack-prometheus-node-exporter   ClusterIP   10.233.43.39    <none>        9100/TCP                     10h
 ```
 
-### Проверяем доступность веб-интерфейса:
+#### Проверяем доступность веб-интерфейса:
 
 ![grafana-](./img/Screenshot_7.png)
 
@@ -309,7 +339,7 @@ prometheus-stack-prometheus-node-exporter   ClusterIP   10.233.43.39    <none>  
 Ссылка на репозиторий: [gitlab.com/AlexandrZolnikov/diplom-netology](https://gitlab.com/AlexandrZolnikov/diplom-netology)
 
 
-### Установка агента Gitlab в Кубернетес
+#### Установка агента Gitlab в Кубернетес
 
 Для взаимодействия Gitlab CI/CD с кластером Kubernetes установим в него [gitlab агент](https://docs.gitlab.com/ee/user/clusters/agent/ci_cd_workflow.html).
 
@@ -321,7 +351,7 @@ ci_access:
     - id: alexandrzolnikov/diplom-netology
 ```
 
-### Устанавливаем агент в кластер с помощью helm:
+#### Устанавливаем агент в кластер с помощью helm:
 
 ```
 helm repo add gitlab https://charts.gitlab.io \
@@ -350,7 +380,7 @@ helm upgrade --install gitlab-agent gitlab/gitlab-agent \
 ![job1](./img/Screenshot_6.png)
 
 
-### Проверяем обновленный деплоймент и удостоверяемся, что он создан из образа с только что добавленным тегом:
+#### Проверяем обновленный деплоймент и удостоверяемся, что он создан из образа с только что добавленным тегом:
 
 ```shell
 aleksandr@node1:~/app$ kubectl describe deployment diplom-k8s-app --namespace gitlab-agent
