@@ -57,13 +57,11 @@ $ cp -rfp inventory/sample inventory/cluster-diplom
 #### Заполняем inventory.ini
 
 ```yaml
-[all]
-node1 ansible_host=84.201.174.10  # ip=10.3.0.1 etcd_member_name=etcd1
-node2 ansible_host=84.201.175.182  # ip=10.3.0.2 etcd_member_name=etcd2
-node3 ansible_host=84.252.128.186  # ip=10.3.0.3 etcd_member_name=etcd3
-node4 ansible_host=84.201.157.217  # ip=10.3.0.4 etcd_member_name=etcd4
-node5 ansible_host=84.252.129.1  # ip=10.3.0.5 etcd_member_name=etcd5
-
+node1 ansible_host=158.160.34.163 ansible_connection=ssh ansible_user=aleksandr
+node2 ansible_host=158.160.34.190 ansible_connection=ssh ansible_user=aleksandr
+node3 ansible_host=158.160.32.47 ansible_connection=ssh ansible_user=aleksandr
+node4 ansible_host=158.160.41.5 ansible_connection=ssh ansible_user=aleksandr
+node5 ansible_host=51.250.90.158 ansible_connection=ssh ansible_user=aleksandr
 [kube_control_plane]
 node1
 node2
