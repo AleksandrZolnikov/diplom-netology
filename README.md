@@ -1,8 +1,8 @@
 Создание облачной инфраструктуры.
 В качестве бекенда для Терраформа выбран Terraform Cloud.
-###  Файл [main.tf](./terraform/main.tf)
+### Файл [main.tf](./terraform/main.tf)
 
-### создаем workspace stage
+### Cоздаем workspace stage
 ````
 $ terraform workspace new stage
 Created and switched to workspace "stage"!
@@ -12,7 +12,7 @@ so if you run "terraform plan" Terraform will not see any existing state
 for this configuration.
 ````
 
-### создаем workspace prod
+### Cоздаем workspace prod
 ````
 $ terraform workspace new prod
 Created and switched to workspace "prod"!
@@ -21,11 +21,10 @@ You're now on a new, empty workspace. Workspaces isolate their state,
 so if you run "terraform plan" Terraform will not see any existing state
 for this configuration.
 ````
-### переходит на workspace stage
 ````
 $ terraform workspace select stage
 ````
-### workspace list
+### Workspace list
 ````
 $ terraform workspace list
   default
@@ -46,18 +45,18 @@ $ terraform apply
 ```shell
 $ git clone https://github.com/kubernetes-sigs/kubespray
 ```
-# Установка зависимостей
+### Установка зависимостей
 ```shell
 $ sudo pip3 install -r requirements.txt
 ```
-# Копирование примера в папку с нашей конфигурацией
+### Копирование примера в папку с нашей конфигурацией
 ```shell
 $ cp -rfp inventory/sample inventory/cluster-diplom
 ```
 
-# Заполняем [inventory.ini](./kubespray/inventory/cluster-diplom/inventory.ini)
+### Заполняем [inventory.ini](./kubespray/inventory/cluster-diplom/inventory.ini)
 
-# Запускаем плейбук.
+### Запускаем плейбук.
 
 ```shell
 $ ansible-playbook -i inventory/cluster-diplom/inventory.ini cluster.yml -b -v -e ansible_user=aleksandr
