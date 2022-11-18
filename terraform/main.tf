@@ -30,12 +30,27 @@ resource "yandex_vpc_network" "network" {
 #---------------------------------------------------------
 # subnet public-subnet # https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/vpc_subnet
 
-resource "yandex_vpc_subnet" "public-subnet" {
-  name           = "public"
-  v4_cidr_blocks = ["192.168.10.0/24"]
-  zone           = "ru-central1-a"
-  description    = "NAT instance"
-  network_id     = yandex_vpc_network.network.id
+resource "yandex_vpc_subnet" "subnet-a" {
+  name = "public subnet-a"
+	v4_cidr_blocks = ["192.168.10.0/24"]
+	zone = "ru-central1-a"
+	network_id = yandex_vpc_network.network.id
+}
+
+resource "yandex_vpc_subnet" "subnet-b" {
+  name = "public subnet-b"
+	v4_cidr_blocks = ["192.168.20.0/24"]
+	zone = "ru-central1-b"
+	network_id = yandex_vpc_network.network.id
+  depends_on = [yandex_vpc_subnet.subnet-a]
+}
+
+resource "yandex_vpc_subnet" "subnet-c" {
+  name = "public subnet-c"
+	v4_cidr_blocks = ["192.168.30.0/24"]
+	zone = "ru-central1-c"
+	network_id = yandex_vpc_network.network.id
+  depends_on = [yandex_vpc_subnet.subnet-b]
 }
 
 # --------------------------------------------------------
@@ -67,16 +82,6 @@ resource "yandex_compute_instance" "nat-instance" {
   metadata = {
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
   }
-}
-
-
-#---------------------------------------------------------
-# subnet private-subnet # https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/vpc_subnet
-
-resource "yandex_vpc_subnet" "private-subnet" { # private-subnet ***
-  v4_cidr_blocks = ["192.168.20.0/24"]
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.network.id # * nat-private
 }
 
 
@@ -164,7 +169,7 @@ resource "yandex_compute_instance" "bastion" {
 resource "yandex_compute_instance" "master-node-1" {
   name        = "master-node-1"
   platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  zone        = yandex_vpc_subnet.subnet-a.zone
 
   resources {
     cores = 4
@@ -185,7 +190,7 @@ resource "yandex_compute_instance" "master-node-1" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-subnet.id
+    subnet_id = yandex_vpc_subnet.subnet-a.id
     nat       = true # no bastion
   }
 
@@ -201,7 +206,7 @@ resource "yandex_compute_instance" "master-node-1" {
 resource "yandex_compute_instance" "master-node-2" {
   name        = "master-node-2"
   platform_id = "standard-v1"
-  zone        = "ru-central1-b"
+  zone        = yandex_vpc_subnet.subnet-b.zone
 
   resources {
     cores = 4
@@ -222,7 +227,7 @@ resource "yandex_compute_instance" "master-node-2" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-subnet.id
+    subnet_id = yandex_vpc_subnet.subnet-b.id
     nat       = true # no bastion
   }
 
@@ -238,7 +243,7 @@ resource "yandex_compute_instance" "master-node-2" {
 resource "yandex_compute_instance" "master-node-3" {
   name        = "master-node-3"
   platform_id = "standard-v1"
-  zone        = "ru-central1-c"
+  zone        = yandex_vpc_subnet.subnet-c.zone
 
   resources {
     cores = 4
@@ -259,7 +264,7 @@ resource "yandex_compute_instance" "master-node-3" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-subnet.id
+    subnet_id = yandex_vpc_subnet.subnet-c.id
     nat       = true # no bastion
   }
 
@@ -275,7 +280,7 @@ resource "yandex_compute_instance" "master-node-3" {
 resource "yandex_compute_instance" "worker-node-1" {
   name        = "worker-node-1"
   platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  zone        = yandex_vpc_subnet.subnet-a.zone
 
   resources {
     cores = 4
@@ -297,7 +302,7 @@ resource "yandex_compute_instance" "worker-node-1" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-subnet.id
+    subnet_id = yandex_vpc_subnet.subnet-a.id
     nat       = true # no bastion
     #  nat       = false ## bastion
   }
@@ -314,7 +319,7 @@ resource "yandex_compute_instance" "worker-node-1" {
 resource "yandex_compute_instance" "worker-node-2" {
   name        = "worker-node-2"
   platform_id = "standard-v1"
-  zone        = "ru-central1-b"
+  zone        = yandex_vpc_subnet.subnet-b.zone
 
   resources {
     cores = 4
@@ -335,7 +340,7 @@ resource "yandex_compute_instance" "worker-node-2" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-subnet.id
+    subnet_id = yandex_vpc_subnet.subnet-b.id
     nat       = true # no bastion
     #  nat       = false ## bastion
   }
@@ -351,7 +356,7 @@ resource "yandex_compute_instance" "worker-node-2" {
 resource "yandex_compute_instance" "worker-node-3" {
   name        = "worker-node-3"
   platform_id = "standard-v1"
-  zone        = "ru-central1-c"
+  zone        = yandex_vpc_subnet.subnet-c.zone
   resources {
     cores = 4
     #  core_fraction = 20 # Guaranteed share of vCPU
@@ -367,7 +372,7 @@ resource "yandex_compute_instance" "worker-node-3" {
     }
   }
   network_interface {
-    subnet_id = yandex_vpc_subnet.private-subnet.id
+    subnet_id = yandex_vpc_subnet.subnet-c.id
     nat       = true # no bastion
     #  nat       = false ## bastion
   }
