@@ -188,7 +188,7 @@ resource "yandex_compute_instance" "master-node-1" {
 resource "yandex_compute_instance" "master-node-2" {
   name        = "master-node-2"
   platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-b"
 
   resources {
     cores = 4
@@ -225,7 +225,7 @@ resource "yandex_compute_instance" "master-node-2" {
 resource "yandex_compute_instance" "master-node-3" {
   name        = "master-node-3"
   platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-c"
 
   resources {
     cores = 4
@@ -301,7 +301,7 @@ resource "yandex_compute_instance" "worker-node-1" {
 resource "yandex_compute_instance" "worker-node-2" {
   name        = "worker-node-2"
   platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-b"
 
   resources {
     cores = 4
@@ -338,7 +338,7 @@ resource "yandex_compute_instance" "worker-node-2" {
 resource "yandex_compute_instance" "worker-node-3" {
   name        = "worker-node-3"
   platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-c"
   resources {
     cores = 4
     #  core_fraction = 20 # Guaranteed share of vCPU
