@@ -79,6 +79,7 @@ resource "yandex_vpc_subnet" "private-subnet" { # private-subnet ***
   network_id     = yandex_vpc_network.network.id # * nat-private
 }
 
+
 #---------------------------------------------------------
 # Bucket object storage # https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket
 
@@ -111,6 +112,18 @@ resource "yandex_storage_bucket" "my-bucket" {
   bucket     = "diplom-devops"
   acl        = "private" # default value, just in case we specify
 }
+
+backend "s3" {
+  endpoint   = "storage.yandexcloud.net"
+  bucket     = "diplom-devops"
+  region     = "ru-central1-a"
+  key        = "terraform/terraform.tfstate"
+  access_key = "here_you_need_access_key"
+  secret_key = "here_you_need_secret_key"
+
+  skip_region_validation      = true
+  skip_credentials_validation = true
+ }  
 
 #-----------------------------------------------
 #  Bastion
