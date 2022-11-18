@@ -131,39 +131,6 @@ backend "s3" {
  }  
 
 #-----------------------------------------------
-#  Bastion
-
-/*
-resource "yandex_compute_instance" "bastion" {
-  name        = "bastion"
-  platform_id = "standard-v1"
-  zone        = "ru-central1-a"
-  resources {
-    cores         = 2
-    core_fraction = 20 # Guaranteed share of vCPU
-    memory        = 2
-  }
-  # Interrupting machine ## прерываемая машина
-  scheduling_policy {
-    preemptible = (terraform.workspace == "stage") ? true : false
-  }
-  boot_disk {
-    initialize_params {
-      image_id = "fd8anitv6eua45627i0e"
-    }
-  }
-  network_interface {
-    subnet_id = yandex_vpc_subnet.public-subnet.id
-    nat       = true
-  }
-  metadata = {
-    user-data = file("./meta.txt")
-    ssh-keys  = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
-  }
-}
-*/
-
-#-----------------------------------------------
 #  master node 1
 
 resource "yandex_compute_instance" "master-node-1" {
@@ -350,35 +317,4 @@ resource "yandex_compute_instance" "worker-node-2" {
     ssh-keys  = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
   }
 }
-/*
-#-----------------------------------------------
-#  worker node 3
-resource "yandex_compute_instance" "worker-node-3" {
-  name        = "worker-node-3"
-  platform_id = "standard-v1"
-  zone        = yandex_vpc_subnet.subnet-c.zone
-  resources {
-    cores = 4
-    #  core_fraction = 20 # Guaranteed share of vCPU
-    memory = 4
-  }
-  # Interrupting machine ## прерываемая машина
-  scheduling_policy {
-    preemptible = (terraform.workspace == "prod") ? true : false
-  }
-  boot_disk {
-    initialize_params {
-      image_id = "fd8anitv6eua45627i0e"
-    }
-  }
-  network_interface {
-    subnet_id = yandex_vpc_subnet.subnet-c.id
-    nat       = true # no bastion
-    #  nat       = false ## bastion
-  }
-  metadata = {
-    user-data = file("./meta.txt")
-    ssh-keys  = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
-  }
-}
-*/
+
